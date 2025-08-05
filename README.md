@@ -7,6 +7,11 @@ Projeto desenvolvido durante o **Bootcamp da Generation Brasil - Bloco 2**, com 
 
 O **R.SpacePlay** é uma aplicação back-end que simula uma loja virtual de jogos. Nele, é possível cadastrar, editar, listar, buscar e deletar **jogos** e suas respectivas **categorias**. O projeto adota boas práticas de desenvolvimento, validação de dados e arquitetura em camadas com NestJS.
 
+## 🗺️ Modelo DER (Diagrama Entidade-Relacionamento)
+
+<div alignt='center'>
+<img src='./db_gamestore.jpg'>
+</div>
 
 ## 🚀 Tecnologias Utilizadas
 
@@ -22,7 +27,7 @@ O **R.SpacePlay** é uma aplicação back-end que simula uma loja virtual de jog
 
 ### 🔹 Categorias
 - `GET /categorias` → Listar todas
-- `GET /categorias/:id` → Buscar por ID
+- `GET /categorias/id/:id` → Buscar por ID
 - `GET /categorias/:nome` → Buscar por nome
 - `POST /categorias` → Criar nova categoria
 - `PUT /categorias` → Atualizar categoria existente
@@ -66,8 +71,8 @@ O **R.SpacePlay** é uma aplicação back-end que simula uma loja virtual de jog
 1. **Clone o repositório:**
 
 ```bash
-git clone https://github.com/seuusuario/r-spaceplay.git
-cd r-spaceplay
+git clone https://github.com/RaideriSpace/rspaceplay_nest.git
+cd rspaceplay_nest
 ```
 
 2. **Instale as dependências:**
@@ -108,11 +113,6 @@ npm run start:dev
 ## 🔍 Testes
 
 Recomenda-se o uso de ferramentas como Insomnia ou Postman para realizar os testes das rotas descritas acima.
-
-
-## 🗺️ Modelo DER (Diagrama Entidade-Relacionamento)
-
-<img src='./db_gamestore.jpg'>
 
 ## 👨‍💻 Desenvolvedor
 
