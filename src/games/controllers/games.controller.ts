@@ -43,19 +43,19 @@ export class GamesController {
 
   @Post()
   @HttpCode(HttpStatus.CREATED)
-  create(@Body() game: Games): Promise<Games> {
+  create(@Body() game: Games): Promise<{ message: string; game: Games }> {
     return this.gameService.create(game);
   }
 
   @Put()
   @HttpCode(HttpStatus.CREATED)
-  update(@Body() game: Games): Promise<Games> {
+  update(@Body() game: Games): Promise<{ message: string; game: Games }> {
     return this.gameService.update(game);
   }
 
   @Delete('/:id')
-  @HttpCode(HttpStatus.NO_CONTENT)
-  delete(@Param('id', ParseIntPipe) id: number) {
+  @HttpCode(HttpStatus.OK)
+  delete(@Param('id', ParseIntPipe) id: number): Promise<{ message: string }> {
     return this.gameService.delete(id);
   }
 }

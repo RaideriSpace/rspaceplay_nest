@@ -12,7 +12,14 @@ export class CategoriasService {
   ) {}
 
   async findAll(): Promise<Categorias[]> {
-    return await this.categoriaRepository.find();
+    try {
+      return await this.categoriaRepository.find();
+    } catch (error) {
+      throw new HttpException(
+        'Erro ao buscar categorias.',
+        HttpStatus.INTERNAL_SERVER_ERROR,
+      );
+    }
   }
 
   async findById(id: number): Promise<Categorias> {
@@ -35,7 +42,7 @@ export class CategoriasService {
   }
 
   async findAllByNome(nome: string): Promise<Categorias[]> {
-    return await this.categoriaRepository.find({
+    const categoriesList = await this.categoriaRepository.find({
       where: {
         nome: ILike(`%${nome}%`),
       },
@@ -43,20 +50,66 @@ export class CategoriasService {
         games: true,
       },
     });
+
+    if (categoriesList.length === 0) {
+      throw new HttpException(
+        'Nenhuma categoria encontrada com esse nome!',
+        HttpStatus.NOT_FOUND,
+      );
+    }
+
+    return categoriesList;
   }
 
-  async create(categoria: Categorias): Promise<Categorias> {
-    return await this.categoriaRepository.save(categoria);
+  async create(
+    categoria: Categorias,
+  ): Promise<{ message: string; categoria: Categorias }> {
+    try {
+      const createdCategory = await this.categoriaRepository.save(categoria);
+      return {
+        message: 'Categoria criada com sucesso!',
+        categoria: createdCategory,
+      };
+    } catch (error) {
+      throw new HttpException(
+        'Erro ao criar categoria! Verifique os dados enviados.',
+        HttpStatus.INTERNAL_SERVER_ERROR,
+      );
+    }
   }
 
-  async update(categoria: Categorias): Promise<Categorias> {
+  async update(
+    categoria: Categorias,
+  ): Promise<{ message: string; categoria: Categorias }> {
     await this.findById(categoria.id);
 
-    return await this.categoriaRepository.save(categoria);
+    try {
+      const updatedCategory = await this.categoriaRepository.save(categoria);
+      return {
+        message: 'Categoria atualizada com sucesso!',
+        categoria: updatedCategory,
+      };
+    } catch (error) {
+      throw new HttpException(
+        'Erro ao atualizar a categoria! Verifique os dados enviados.',
+        HttpStatus.INTERNAL_SERVER_ERROR,
+      );
+    }
   }
 
-  async delete(id: number): Promise<DeleteResult> {
+  async delete(id: number): Promise<{ message: string }> {
     await this.findById(id);
-    return await this.categoriaRepository.delete(id);
+    try {
+      await this.categoriaRepository.delete(id);
+
+      return {
+        message: `Categoria com id ${id} deletada com sucesso.`,
+      };
+    } catch (error) {
+      throw new HttpException(
+        'Erro ao deletar categoria.',
+        HttpStatus.INTERNAL_SERVER_ERROR,
+      );
+    }
   }
 }

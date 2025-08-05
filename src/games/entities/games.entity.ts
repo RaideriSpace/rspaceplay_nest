@@ -1,5 +1,11 @@
 import { IsNotEmpty } from 'class-validator';
-import { Column, Entity, JoinColumn, ManyToOne, PrimaryGeneratedColumn } from 'typeorm';
+import {
+  Column,
+  Entity,
+  JoinColumn,
+  ManyToOne,
+  PrimaryGeneratedColumn,
+} from 'typeorm';
 import { Categorias } from '../../categorias/entities/categorias.entity';
 
 @Entity({ name: 'tb_games' })
@@ -31,7 +37,7 @@ export class Games {
 
   @IsNotEmpty()
   @Column({ type: 'date', nullable: false })
-  data_lancamento: Date;
+  dataLancamento: Date;
 
   @Column({ type: 'boolean', default: false })
   destaque: boolean;
@@ -41,8 +47,8 @@ export class Games {
   desenvolvedora: string;
 
   @ManyToOne(() => Categorias, (categoria) => categoria.games, {
-    onDelete: "CASCADE",
+    onDelete: 'CASCADE',
   })
-  @JoinColumn({ name: 'categoria_id'})
+  @JoinColumn({ name: 'categoria_id' })
   categoria: Categorias;
 }

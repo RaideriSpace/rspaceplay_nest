@@ -1,8 +1,7 @@
 import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Games } from '../entities/games.entity';
-import { ILike, Repository } from 'typeorm';
-import { DeleteResult } from 'typeorm/browser';
+import { ILike, Repository, DeleteResult } from 'typeorm';
 import { CategoriasService } from '../../categorias/services/categorias.service';
 
 @Injectable()
@@ -14,11 +13,18 @@ export class GamesService {
   ) {}
 
   async findAll(): Promise<Games[]> {
-    return await this.gamesRepository.find({
-      relations: {
-        categoria: true,
-      },
-    });
+    try {
+      return await this.gamesRepository.find({
+        relations: {
+          categoria: true,
+        },
+      });
+    } catch (error) {
+      throw new HttpException(
+        'Erro ao buscar jogos',
+        HttpStatus.INTERNAL_SERVER_ERROR,
+      );
+    }
   }
 
   async findById(id: number): Promise<Games> {
@@ -28,7 +34,7 @@ export class GamesService {
       },
       relations: {
         categoria: true,
-      }
+      },
     });
 
     if (!games)
@@ -38,61 +44,96 @@ export class GamesService {
   }
 
   async findAllByTitulo(titulo: string): Promise<Games[]> {
-    return await this.gamesRepository.find({
+    const gamesList = await this.gamesRepository.find({
       where: {
         titulo: ILike(`%${titulo}%`),
       },
       relations: {
         categoria: true,
-      }
+      },
     });
+
+    if (gamesList.length === 0) {
+      throw new HttpException(
+        'Nenhum jogo encontrado com esse título!',
+        HttpStatus.NOT_FOUND,
+      );
+    }
+
+    return gamesList;
   }
 
   async findAllDestaque(): Promise<Games[]> {
-    return await this.gamesRepository.find({
-      where: { destaque: true },
-      relations: {
-        categoria: true,
-      }
-    });
+      const destaqueList =  await this.gamesRepository.find({
+        where: { destaque: true },
+        relations: {
+          categoria: true,
+        },
+      });
+
+    if (destaqueList.length === 0) {
+      throw new HttpException(
+        'Nenhum jogo está em destaque!',
+        HttpStatus.NOT_FOUND,
+      );
+    }
+
+    return destaqueList;
   }
 
-  async create(game: Games): Promise<Games> {
-
+  async create(game: Games): Promise<{ message: string; game: Games }> {
     try {
       await this.categoriaService.findById(game.categoria.id);
-      return await this.gamesRepository.save(game);
-    } catch (error) {
-      if (error instanceof HttpException) {
-        throw error;
-      }
-      throw new HttpException("Erro Inesperado ao criar o jogo! Algum valor esta incorreto.", HttpStatus.INTERNAL_SERVER_ERROR)
-    }
-  }
-
-  async update(game: Games): Promise<Games> {
-    const game_id = await this.findById(game.id);
-    if (!game_id)
-      throw new HttpException('Jogo não encontrado', HttpStatus.NOT_FOUND);
-
-    try {
-        await this.categoriaService.findById(
-        game.categoria.id,
-      );
-      return await this.gamesRepository.save(game);
+      const createdGame = await this.gamesRepository.save(game);
+      return {
+        message: 'Jogo criado com sucesso!',
+        game: createdGame,
+      };
     } catch (error) {
       if (error instanceof HttpException) {
         throw error;
       }
       throw new HttpException(
-        'Erro Inesperado ao criar o jogo! Algum valor esta incorreto.',
+        'Erro ao criar o jogo! Verifique os dados enviados.',
         HttpStatus.INTERNAL_SERVER_ERROR,
       );
     }
   }
 
-  async delete(id: number): Promise<DeleteResult> {
+  async update(game: Games): Promise<{ message: string; game: Games }> {
+    await this.findById(game.id);
+
+    try {
+      await this.categoriaService.findById(game.categoria.id);
+      const updatedGame = await this.gamesRepository.save(game);
+      return {
+        message: 'Jogo atualizado com sucesso!',
+        game: updatedGame,
+      };
+    } catch (error) {
+      if (error instanceof HttpException) {
+        throw error;
+      }
+      throw new HttpException(
+        'Erro ao atualizar o jogo! Verifique os dados enviados.',
+        HttpStatus.INTERNAL_SERVER_ERROR,
+      );
+    }
+  }
+
+  async delete(id: number): Promise<{ message: string }> {
     await this.findById(id);
-    return await this.gamesRepository.delete(id);
+    try {
+      await this.gamesRepository.delete(id);
+
+      return {
+        message: `Jogo com id ${id} deletada com sucesso.`,
+      };
+    } catch (error) {
+      throw new HttpException(
+        'Erro ao deletar jogo',
+        HttpStatus.INTERNAL_SERVER_ERROR,
+      );
+    }
   }
 }

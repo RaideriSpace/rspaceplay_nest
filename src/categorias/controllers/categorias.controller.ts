@@ -37,19 +37,23 @@ export class CategoriasController {
 
   @Post()
   @HttpCode(HttpStatus.CREATED)
-  create(@Body() categoria: Categorias): Promise<Categorias> {
+  create(
+    @Body() categoria: Categorias,
+  ): Promise<{ message: string; categoria: Categorias }> {
     return this.categoriaService.create(categoria);
   }
 
   @Put()
   @HttpCode(HttpStatus.OK)
-  update(@Body() categoria: Categorias): Promise<Categorias> {
+  update(
+    @Body() categoria: Categorias,
+  ): Promise<{ message: string; categoria: Categorias }> {
     return this.categoriaService.update(categoria);
   }
 
   @Delete('/:id')
-  @HttpCode(HttpStatus.NO_CONTENT)
-  delete(@Param('id', ParseIntPipe) id: number) {
+  @HttpCode(HttpStatus.OK)
+  delete(@Param('id', ParseIntPipe) id: number): Promise<{ message: string }> {
     return this.categoriaService.delete(id);
   }
 }
